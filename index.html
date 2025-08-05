@@ -22,12 +22,14 @@
         <div v-else>
             <div class="mb-4">
                 <button @click="fetchProducts" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Обновить список товаров</button>
+                <button @click="fetchStock" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg mt-2">Показать остатки (розничный магазин)</button>
             </div>
             <div v-if="loading" class="text-center text-gray-400">Загрузка...</div>
             <ul v-else class="divide-y divide-gray-200">
                 <li v-for="product in products" :key="product.id" class="py-2 flex justify-between items-center">
                     <span>{{ product.name }}</span>
                     <span class="text-gray-600">{{ product.price }}₽</span>
+                    <span v-if="product.stock !== undefined" class="ml-4 text-green-700">Остаток: {{ product.stock }}</span>
                 </li>
                 <li v-if="products.length === 0" class="py-4 text-center text-gray-400">Нет товаров</li>
             </ul>
@@ -47,6 +49,37 @@
                 this.loading = true;
                 const { data, error } = await this.supabase.from('products').select('*').order('name');
                 if (!error) this.products = data;
+                this.loading = false;
+            },
+            async fetchStock() {
+                this.loading = true;
+                // Получаем id склада с нужным названием
+                const { data: warehouse, error: whError } = await this.supabase
+                    .from('warehouses')
+                    .select('id')
+                    .eq('name', 'розничный магазин')
+                    .limit(1)
+                    .single();
+                if (whError || !warehouse) {
+                    this.products = [];
+                    this.loading = false;
+                    return;
+                }
+                // Получаем остатки и цены по найденному складу
+                const { data, error } = await this.supabase
+                    .from('inventory')
+                    .select('quantity, product_id, products(name,price)')
+                    .eq('warehouse_id', warehouse.id)
+                    .gt('quantity', 0)
+                    .order('products.name');
+                if (!error) {
+                    // Преобразуем для вывода: показываем и цену, и остаток
+                    this.products = data.map(item => ({
+                        name: item.products.name,
+                        price: item.products.price,
+                        stock: item.quantity
+                    }));
+                }
                 this.loading = false;
             }
         },
