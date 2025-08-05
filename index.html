@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastroShop WebApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center">
+    <div id="app" class="w-full max-w-md mx-auto p-4 bg-white rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold mb-4 text-center">GastroShop</h1>
+        <div v-if="!supabase">
+            <p class="text-center text-gray-500">Загрузка...</p>
+        </div>
+        <div v-else>
+            <div class="mb-4">
+                <button @click="fetchProducts" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Обновить список товаров</button>
+            </div>
+            <div v-if="loading" class="text-center text-gray-400">Загрузка...</div>
+            <ul v-else class="divide-y divide-gray-200">
+                <li v-for="product in products" :key="product.id" class="py-2 flex justify-between items-center">
+                    <span>{{ product.name }}</span>
+                    <span class="text-gray-600">{{ product.price }}₽</span>
+                </li>
+                <li v-if="products.length === 0" class="py-4 text-center text-gray-400">Нет товаров</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+    const app = {
+        data() {
+            return {
+                supabase: null,
+                products: [],
+                loading: false
+            }
+        },
+        methods: {
+            async fetchProducts() {
+                this.loading = true;
+                const { data, error } = await this.supabase.from('products').select('*').order('name');
+                if (!error) this.products = data;
+                this.loading = false;
+            }
+        },
+        mounted() {
+            this.supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+            this.fetchProducts();
+        }
+    };
+    Vue.createApp(app).mount('#app');
+    </script>
+</body>
+</html>
