@@ -27,8 +27,8 @@
             <ul v-else class="divide-y divide-gray-200">
                 <li v-for="product in products" :key="product.id" class="py-2 flex justify-between items-center">
                     <span>{{ product.name }}</span>
-                    <span class="text-gray-600">{{ product.price }}₽</span>
-                    <span v-if="product.stock !== undefined" class="ml-4 text-green-700">Остаток: {{ product.stock }}</span>
+                    <span class="text-gray-600">Rp {{ formatNumber(product.price) }}</span>
+                    <span v-if="product.stock !== undefined" class="ml-4 text-green-700">Остаток: {{ formatNumber(product.stock) }}</span>
                 </li>
                 <li v-if="products.length === 0" class="py-4 text-center text-gray-400">Нет товаров</li>
             </ul>
@@ -44,6 +44,28 @@
             }
         },
         methods: {
+            formatNumber(value) {
+                if (typeof value !== 'number') return value;
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
+        methods: {
+            async fetchProducts() {
+                this.loading = true;
+                const { data, error } = await this.supabase.from('products').select('*').order('name');
+                if (!error) this.products = data;
+                this.loading = false;
+        data() {
+            return {
+                supabase: null,
+                products: [],
+                loading: false
+            }
+        },
+        methods: {
+            formatNumber(value) {
+                if (typeof value !== 'number') return value;
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
             async fetchProducts() {
                 this.loading = true;
                 const { data, error } = await this.supabase.from('products').select('*').order('name');
@@ -103,12 +125,3 @@
                 this.loading = false;
             }
         },
-        mounted() {
-            this.supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-            this.fetchStock();
-        }
-    };
-    Vue.createApp(app).mount('#app');
-    </script>
-</body>
-</html>
