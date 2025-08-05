@@ -52,14 +52,19 @@
             },
             async fetchStock() {
                 this.loading = true;
-                // Получаем id склада с нужным названием
-                const { data: warehouse, error: whError } = await this.supabase
+                // Получаем id склада с учетом trim/lower
+                const { data: warehouses, error: whError } = await this.supabase
                     .from('warehouses')
-                    .select('id')
-                    .eq('name', 'розничный магазин')
-                    .limit(1)
-                    .single();
-                if (whError || !warehouse) {
+                    .select('id, name');
+                if (whError || !warehouses) {
+                    this.products = [];
+                    this.loading = false;
+                    return;
+                }
+                const warehouse = warehouses.find(w =>
+                    w.name && w.name.trim().toLowerCase() === 'розничный магазин'
+                );
+                if (!warehouse) {
                     this.products = [];
                     this.loading = false;
                     return;
@@ -72,7 +77,6 @@
                     .gt('quantity', 0)
                     .order('products.name');
                 if (!error) {
-                    // Преобразуем для вывода: показываем и цену, и остаток
                     this.products = data.map(item => ({
                         name: item.products.name,
                         price: item.products.price,
