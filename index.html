@@ -21,8 +21,7 @@
         </div>
         <div v-else>
             <div class="mb-4">
-                <button @click="fetchProducts" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Обновить список товаров</button>
-                <button @click="fetchStock" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg mt-2">Показать остатки (розничный магазин)</button>
+                <button @click="fetchStock" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">Показать остатки (розничный магазин)</button>
             </div>
             <div v-if="loading" class="text-center text-gray-400">Загрузка...</div>
             <ul v-else class="divide-y divide-gray-200">
@@ -85,7 +84,7 @@
         },
         mounted() {
             this.supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-            this.fetchProducts();
+            this.fetchStock();
         }
     };
     Vue.createApp(app).mount('#app');
