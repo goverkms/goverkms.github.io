@@ -44,28 +44,6 @@
             }
         },
         methods: {
-            formatNumber(value) {
-                if (typeof value !== 'number') return value;
-                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            },
-        methods: {
-            async fetchProducts() {
-                this.loading = true;
-                const { data, error } = await this.supabase.from('products').select('*').order('name');
-                if (!error) this.products = data;
-                this.loading = false;
-        data() {
-            return {
-                supabase: null,
-                products: [],
-                loading: false
-            }
-        },
-        methods: {
-            formatNumber(value) {
-                if (typeof value !== 'number') return value;
-                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            },
             async fetchProducts() {
                 this.loading = true;
                 const { data, error } = await this.supabase.from('products').select('*').order('name');
@@ -123,5 +101,9 @@
                     };
                 });
                 this.loading = false;
+            },
+            formatNumber(value) {
+                if (typeof value !== 'number') return value;
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
         },
