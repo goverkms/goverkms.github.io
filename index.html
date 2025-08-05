@@ -69,20 +69,37 @@
                     this.loading = false;
                     return;
                 }
-                // Получаем остатки и цены по найденному складу
-                const { data, error } = await this.supabase
+                // Получаем остатки по найденному складу
+                const { data: inventory, error: invError } = await this.supabase
                     .from('inventory')
-                    .select('quantity, product_id, products(name,price)')
+                    .select('quantity, product_id')
                     .eq('warehouse_id', warehouse.id)
-                    .gt('quantity', 0)
-                    .order('products.name');
-                if (!error) {
-                    this.products = data.map(item => ({
-                        name: item.products.name,
-                        price: item.products.price,
-                        stock: item.quantity
-                    }));
+                    .gt('quantity', 0);
+                if (invError || !inventory || inventory.length === 0) {
+                    this.products = [];
+                    this.loading = false;
+                    return;
                 }
+                // Получаем товары по списку product_id
+                const productIds = inventory.map(item => item.product_id);
+                const { data: productsData, error: prodError } = await this.supabase
+                    .from('products')
+                    .select('id, name, price')
+                    .in('id', productIds);
+                if (prodError || !productsData) {
+                    this.products = [];
+                    this.loading = false;
+                    return;
+                }
+                // Сопоставляем остатки и товары
+                this.products = inventory.map(item => {
+                    const prod = productsData.find(p => p.id === item.product_id) || {};
+                    return {
+                        name: prod.name,
+                        price: prod.price,
+                        stock: item.quantity
+                    };
+                });
                 this.loading = false;
             }
         },
