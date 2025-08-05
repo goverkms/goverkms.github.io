@@ -36,8 +36,8 @@
                     </div>
                     <div v-if="products.length === 0 && !loading" class="py-4 text-center text-gray-400">Нет товаров</div>
                 </div>
-                <!-- Корзина -->
-                <div class="w-full sm:w-80 bg-white rounded-xl p-4 shadow-lg mt-4 sm:mt-0">
+                <!-- Корзина (адаптивная) -->
+                <div class="w-full sm:w-80 bg-white rounded-xl p-4 shadow-lg mt-4 sm:mt-0 fixed bottom-0 left-0 sm:static z-40 sm:z-auto" style="max-width:100vw;">
                     <h2 class="text-xl font-bold mb-4 text-center">Корзина</h2>
                     <div v-if="cart.length === 0" class="text-center text-gray-400">Корзина пуста</div>
                     <ul v-else>
@@ -130,18 +130,17 @@
             },
             addToCart(product) {
                 const idx = this.cart.findIndex(item => item.id === product.id);
-                if (idx !== -1) {
-                    if (this.cart[idx].qty < product.stock) {
+                if (product.stock > 0) {
+                    if (idx !== -1) {
                         this.cart[idx].qty++;
-                        product.stock--;
+                    } else {
+                        this.cart.push({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            qty: 1
+                        });
                     }
-                } else {
-                    this.cart.push({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        qty: 1
-                    });
                     product.stock--;
                 }
             },
