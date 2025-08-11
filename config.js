@@ -1,2 +1,0 @@
-window.SUPABASE_URL = "https://viahqnkudiwfpietmvfy.supabase.co";
-window.SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpYWhxbmt1ZGl3ZnBpZXRtdmZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxMjE4MzEsImV4cCI6MjA2OTY5NzgzMX0.T44KGm5wlZhvMRriYns-9ejqWObi8Wj_whf8p5k0BLo";
